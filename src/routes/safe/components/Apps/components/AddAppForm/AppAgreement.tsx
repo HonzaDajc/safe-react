@@ -21,7 +21,7 @@ const AppAgreement = (): React.ReactElement => {
       component={StyledCheckbox}
       label={
         <Text size="xl">
-          This app is not a Gnosis product and I agree to use this app
+          This app is not a Fantom product and I agree to use this app
           <br />
           at my own risk.
         </Text>

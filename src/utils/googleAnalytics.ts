@@ -23,8 +23,8 @@ export const loadGoogleAnalytics = (): void => {
     ReactGA.initialize(trackingID)
     ReactGA.set({
       anonymizeIp: true,
-      appName: `Gnosis Safe Multisig (${networkInfo.label})`,
-      appId: `io.gnosis.safe.${networkInfo.label.toLowerCase()}`,
+      appName: `Fantom Safe Multisig (${networkInfo.label})`,
+      appId: `fantom.safe.${networkInfo.label.toLowerCase()}`,
       appVersion: process.env.REACT_APP_APP_VERSION,
     })
     analyticsLoaded = true

@@ -95,7 +95,7 @@ const ManageOwners = ({ addressBook, granted, owners }: Props): React.ReactEleme
         </Heading>
         <Paragraph className={classes.annotation}>
           Add, remove and replace owners or rename existing owners. Owner names are only stored locally and never shared
-          with Gnosis or any third parties.
+          with Fantom or any third parties.
         </Paragraph>
         <TableContainer>
           <Table

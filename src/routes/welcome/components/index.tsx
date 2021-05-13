@@ -1,16 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import {
-  Card,
-  Button,
-  Title,
-  Text,
-  Divider,
-  ButtonLink,
-  Dot,
-  Icon,
-  Link as LinkSRC,
-} from '@gnosis.pm/safe-react-components'
+import { Card, Button, Title, Text, Divider, Dot, Icon } from '@gnosis.pm/safe-react-components'
 
 import Link from 'src/components/layout/Link'
 import Block from 'src/components/layout/Block'
@@ -63,9 +53,6 @@ const StyledTitle = styled(Title)`
 const StyledTitleOnly = styled(Title)`
   margin: 0 0 16px 0;
 `
-const StyledButtonLink = styled(ButtonLink)`
-  margin: 16px 0 16px -8px;
-`
 
 type Props = {
   isOldMultisigMigration?: boolean
@@ -77,21 +64,18 @@ export const WelcomeLayout = ({ isOldMultisigMigration }: Props): React.ReactEle
     <Block>
       {/* Title */}
       <Title size="md" strong>
-        Welcome to Gnosis Safe Multisig.
+        Welcome to Fantom Safe Multisig.
       </Title>
 
       {/* Subtitle */}
       <Title size="xs">
         {isOldMultisigMigration ? (
           <>
-            We will replicate the owner structure from your existing Gnosis MultiSig to let you test the new interface.
+            We will replicate the owner structure from your existing Fantom MultiSig to let you test the new interface.
             As soon as you feel comfortable, start moving funds to your new Safe.
           </>
         ) : (
-          <>
-            Gnosis Safe Multisig is the most trusted platform to manage digital assets. <br /> Here is how to get
-            started:{' '}
-          </>
+          <>Here is how to get started: </>
         )}
       </Title>
 
@@ -108,20 +92,9 @@ export const WelcomeLayout = ({ isOldMultisigMigration }: Props): React.ReactEle
               </StyledTitle>
             </TitleWrapper>
             <Text size="xl">
-              Gnosis Safe Multisig supports a wide range of wallets that you can choose to be one of the authentication
+              Fantom Safe Multisig supports a wide range of wallets that you can choose to be one of the authentication
               factors.
             </Text>
-            <StyledButtonLink textSize="xl" color="primary" iconType="externalLink" iconSize="sm">
-              <LinkSRC
-                size="xl"
-                href="https://help.gnosis-safe.io/en/articles/4689442-why-do-i-need-to-connect-a-wallet"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="More info about: Why do I need to connect wallet?"
-              >
-                Why do I need to connect wallet?
-              </LinkSRC>
-            </StyledButtonLink>
             <StyledButton
               size="lg"
               color="primary"

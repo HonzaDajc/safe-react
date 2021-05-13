@@ -1,4 +1,4 @@
-import { Icon, Link, Text } from '@gnosis.pm/safe-react-components'
+import { Text } from '@gnosis.pm/safe-react-components'
 import React, { Fragment, ReactElement, useContext } from 'react'
 
 import { Transaction, TransactionDetails } from 'src/logic/safe/store/models/types/gateway.d'
@@ -31,19 +31,6 @@ const Disclaimer = ({ nonce }: { nonce: string }): ReactElement => {
         <Text as="span" size="xl">
           These transactions conflict as they use the same nonce. Executing one will automatically replace the other(s).{' '}
         </Text>
-        <Link
-          href="https://help.gnosis-safe.io/en/articles/4730252-why-are-transactions-with-the-same-nonce-conflicting-with-each-other"
-          target="_blank"
-          rel="noreferrer"
-          title="Why are transactions with the same nonce conflicting with each other?"
-        >
-          <AlignItemsWithMargin>
-            <Text size="xl" as="span" color="primary">
-              Learn more
-            </Text>
-            <Icon size="sm" type="externalLink" color="primary" />
-          </AlignItemsWithMargin>
-        </Link>
       </AlignItemsWithMargin>
     </DisclaimerContainer>
   )

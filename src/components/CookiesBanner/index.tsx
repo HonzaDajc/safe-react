@@ -11,9 +11,7 @@ import { cookieBannerOpen } from 'src/logic/cookies/store/selectors'
 import { loadFromCookie, saveCookie } from 'src/logic/cookies/utils'
 import { mainFontFamily, md, primary, screenSm } from 'src/theme/variables'
 import { loadGoogleAnalytics } from 'src/utils/googleAnalytics'
-import { closeIntercom, isIntercomLoaded, loadIntercom } from 'src/utils/intercom'
 import AlertRedIcon from './assets/alert-red.svg'
-import IntercomIcon from './assets/intercom.png'
 
 const isDesktop = process.env.REACT_APP_BUILD_FOR_DESKTOP
 
@@ -159,15 +157,7 @@ const CookiesBanner = (): ReactElement => {
     const expDays = localAnalytics ? 365 : 7
     await saveCookie(COOKIES_KEY, newState, expDays)
     setShowAnalytics(localAnalytics)
-    setShowIntercom(localIntercom)
-    if (!localIntercom && isIntercomLoaded()) {
-      closeIntercom()
-    }
     dispatch.current(openCookieBanner({ cookieBannerOpen: false }))
-  }
-
-  if (showIntercom) {
-    loadIntercom()
   }
 
   const CookiesBannerForm = (props: CookiesBannerFormProps) => {
@@ -184,7 +174,7 @@ const CookiesBanner = (): ReactElement => {
           <p className={classes.text}>
             We use cookies to provide you with the best experience and to help improve our website and application.
             Please read our{' '}
-            <Link className={classes.link} to="https://gnosis-safe.io/cookie">
+            <Link className={classes.link} to="https://fantom.foundation/privacy-policy/">
               Cookie Policy
             </Link>{' '}
             for more information. By clicking &quot;Accept all&quot;, you agree to the storing of cookies on your device
@@ -253,7 +243,6 @@ const CookiesBanner = (): ReactElement => {
       {!isDesktop && !showIntercom && (
         <img
           className={classes.intercomImage}
-          src={IntercomIcon}
           onClick={() => dispatch.current(openCookieBanner({ cookieBannerOpen: true, intercomAlertDisplayed: true }))}
         />
       )}

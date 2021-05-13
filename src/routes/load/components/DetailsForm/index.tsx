@@ -80,8 +80,8 @@ const DetailsForm = ({ errors, form }: DetailsFormProps): React.ReactElement => 
     <>
       <Block margin="md">
         <Paragraph color="primary" noMargin size="md">
-          You are about to load an existing Gnosis Safe. First, choose a name and enter the Safe address. The name is
-          only stored locally and will never be shared with Gnosis or any third parties.
+          You are about to load an existing Fantom Safe. First, choose a name and enter the Safe address. The name is
+          only stored locally and will never be shared with Fantom or any third parties.
           <br />
           Your connected wallet does not have to be the owner of this Safe. In this case, the interface will provide you
           a read-only view.
@@ -130,11 +130,11 @@ const DetailsForm = ({ errors, form }: DetailsFormProps): React.ReactElement => 
       <Block margin="sm">
         <Paragraph className={classes.links} color="primary" noMargin size="md">
           By continuing you consent to the{' '}
-          <a href="https://gnosis-safe.io/terms" rel="noopener noreferrer" target="_blank">
+          <a href="https://fantom.foundation/terms-of-service/" rel="noopener noreferrer" target="_blank">
             terms of use
           </a>{' '}
           and{' '}
-          <a href="https://gnosis-safe.io/privacy" rel="noopener noreferrer" target="_blank">
+          <a href="https://fantom.foundation/privacy-policy/" rel="noopener noreferrer" target="_blank">
             privacy policy
           </a>
           .
