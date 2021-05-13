@@ -44,8 +44,8 @@ const SafeNameForm = ({ safeName }: { safeName: string }): React.ReactElement =>
     <>
       <Block margin="lg">
         <Paragraph color="primary" noMargin size="lg">
-          You are about to create a new Safe with one or more owners. First, let&apos;s give your new Safe a name. This
-          name is only stored locally and will never be shared with Gnosis or any third parties.
+          You are about to create a new Fantom Safe wallet with one or more owners. First, let&apos;s give your new
+          wallet a name. This name is only stored locally and will never be shared with Fantom or any third parties.
         </Paragraph>
       </Block>
       <Block className={classes.root} margin="lg">
@@ -63,11 +63,11 @@ const SafeNameForm = ({ safeName }: { safeName: string }): React.ReactElement =>
       <Block margin="lg">
         <Paragraph className={classes.links} color="primary" noMargin size="lg">
           By continuing you consent to the{' '}
-          <a href="https://gnosis-safe.io/terms" rel="noopener noreferrer" target="_blank">
+          <a href="https://fantom.foundation/terms-of-service/" rel="noopener noreferrer" target="_blank">
             terms of use
           </a>{' '}
           and{' '}
-          <a href="https://gnosis-safe.io/privacy" rel="noopener noreferrer" target="_blank">
+          <a href="https://fantom.foundation/privacy-policy/" rel="noopener noreferrer" target="_blank">
             privacy policy
           </a>
           .

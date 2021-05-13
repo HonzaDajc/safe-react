@@ -24,14 +24,6 @@ const wallets: Wallet[] = [
     bridge: 'https://safe-walletconnect.gnosis.io/',
   },
   {
-    walletName: WALLETS.TREZOR,
-    appUrl: 'gnosis-safe.io',
-    preferred: true,
-    email: 'safe@gnosis.io',
-    desktop: true,
-    rpcUrl,
-  },
-  {
     walletName: WALLETS.LEDGER,
     desktop: true,
     preferred: true,
@@ -42,7 +34,7 @@ const wallets: Wallet[] = [
   {
     walletName: WALLETS.LATTICE,
     rpcUrl,
-    appName: 'Gnosis Safe',
+    appName: 'Fantom Safe',
     desktop: false,
   },
   {

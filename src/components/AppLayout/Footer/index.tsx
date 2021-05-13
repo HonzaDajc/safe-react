@@ -1,12 +1,8 @@
 import { makeStyles } from '@material-ui/core/styles'
 import cn from 'classnames'
 import * as React from 'react'
-import { useDispatch } from 'react-redux'
-
-import GnoButtonLink from 'src/components/layout/ButtonLink'
 import Link from 'src/components/layout/Link'
-import { openCookieBanner } from 'src/logic/cookies/store/actions/openCookieBanner'
-import { screenSm, secondary, sm } from 'src/theme/variables'
+import { screenSm, sm } from 'src/theme/variables'
 
 const useStyles = makeStyles({
   footer: {
@@ -22,11 +18,11 @@ const useStyles = makeStyles({
     width: `${screenSm}px`,
   },
   item: {
-    color: 'rgba(0, 0, 0, 0.54)',
+    color: 'rgba(0, 0, 255, 0.54)',
     fontSize: '13px',
   },
   link: {
-    color: secondary,
+    color: 'rgba(0, 0, 255, 0.54)',
     textDecoration: 'none',
 
     '&:hover': {
@@ -42,51 +38,20 @@ const useStyles = makeStyles({
   },
 } as any)
 
-const appVersion = process.env.REACT_APP_APP_VERSION ? `v${process.env.REACT_APP_APP_VERSION} ` : 'Versions'
-
 const Footer = (): React.ReactElement => {
   const date = new Date()
   const classes = useStyles()
-  const dispatch = useDispatch()
-
-  const openCookiesHandler = () => {
-    dispatch(openCookieBanner({ cookieBannerOpen: true }))
-  }
 
   return (
     <footer className={classes.footer}>
-      <span className={classes.item}>©{date.getFullYear()} Gnosis</span>
+      <span className={classes.item}>©{date.getFullYear()} Fantom Foundation</span>
       <span className={classes.sep}>|</span>
-      <Link className={cn(classes.item, classes.link)} target="_blank" to="https://gnosis-safe.io/terms">
-        Terms
+      <Link className={cn(classes.item, classes.link)} target="_blank" to="https://fantom.foundation/terms-of-service/">
+        Terms of Service
       </Link>
       <span className={classes.sep}>|</span>
-      <Link className={cn(classes.item, classes.link)} target="_blank" to="https://gnosis-safe.io/privacy">
-        Privacy
-      </Link>
-      <span className={classes.sep}>|</span>
-      <Link className={cn(classes.item, classes.link)} target="_blank" to="https://gnosis-safe.io/licenses">
-        Licenses
-      </Link>
-      <span className={classes.sep}>|</span>
-      <Link className={cn(classes.item, classes.link)} target="_blank" to="https://gnosis-safe.io/imprint">
-        Imprint
-      </Link>
-      <span className={classes.sep}>|</span>
-      <Link className={cn(classes.item, classes.link)} target="_blank" to="https://gnosis-safe.io/cookie">
-        Cookie Policy
-      </Link>
-      <span className={classes.sep}>-</span>
-      <GnoButtonLink className={cn(classes.item, classes.link, classes.buttonLink)} onClick={openCookiesHandler}>
-        Preferences
-      </GnoButtonLink>
-      <span className={classes.sep}>|</span>
-      <Link
-        className={cn(classes.item, classes.link)}
-        target="_blank"
-        to="https://github.com/gnosis/safe-react/releases"
-      >
-        {appVersion}
+      <Link className={cn(classes.item, classes.link)} target="_blank" to="https://fantom.foundation/privacy-policy/">
+        Privacy Policy
       </Link>
     </footer>
   )

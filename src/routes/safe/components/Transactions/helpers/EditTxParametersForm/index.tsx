@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react'
 import IconButton from '@material-ui/core/IconButton'
 import Close from '@material-ui/icons/Close'
 import { makeStyles } from '@material-ui/core/styles'
-import { Title, Text, Divider, Link, Icon } from '@gnosis.pm/safe-react-components'
+import { Title, Text, Divider } from '@gnosis.pm/safe-react-components'
 import styled from 'styled-components'
 
 import Field from 'src/components/forms/Field'
@@ -38,15 +38,6 @@ const EthereumOptions = styled.div`
 
   div {
     width: 216px !important;
-  }
-`
-const StyledLink = styled(Link)`
-  margin: 16px 0 0 0;
-  display: inline-flex;
-  align-items: center;
-
-  > :first-of-type {
-    margin-right: 5px;
   }
 `
 const StyledText = styled(Text)`
@@ -193,16 +184,6 @@ export const EditTxParametersForm = ({
                       disabled={!areEthereumParamsVisible(parametersStatus)}
                     />
                   </EthereumOptions>
-
-                  <StyledLink
-                    href="https://help.gnosis-safe.io/en/articles/4738445-configure-advanced-transaction-parameters-manually"
-                    target="_blank"
-                  >
-                    <Text size="xl" color="primary">
-                      How can I configure these parameters manually?
-                    </Text>
-                    <Icon size="sm" type="externalLink" color="primary" />
-                  </StyledLink>
                 </>
               )}
 

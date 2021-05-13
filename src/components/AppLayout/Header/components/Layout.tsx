@@ -16,7 +16,7 @@ import Row from 'src/components/layout/Row'
 import { headerHeight, md, screenSm, sm } from 'src/theme/variables'
 import { useStateHandler } from 'src/logic/hooks/useStateHandler'
 
-import SafeLogo from '../assets/gnosis-safe-multisig-logo.svg'
+import SafeLogo from '../assets/fantom-logo.svg'
 import { getNetworks } from 'src/config'
 import { shouldSwitchNetwork } from 'src/logic/wallets/utils/network'
 
@@ -39,10 +39,10 @@ const styles = () => ({
     zIndex: 1301,
   },
   logo: {
-    flexBasis: '140px',
+    flexBasis: '340px',
     flexShrink: '0',
     flexGrow: '0',
-    maxWidth: '55px',
+    maxWidth: '255px',
     padding: sm,
     marginTop: '4px',
     [`@media (min-width: ${screenSm}px)`]: {
@@ -74,7 +74,7 @@ const Layout = ({ classes, providerDetails, providerInfo }) => {
     <Row className={classes.summary}>
       <Col className={classes.logo} middle="xs" start="xs">
         <Link to="/">
-          <Img alt="Gnosis Team Safe" height={36} src={SafeLogo} testId="heading-gnosis-logo" />
+          <Img alt="Fantom Team Safe" height={50} src={SafeLogo} testId="heading-gnosis-logo" />
         </Link>
       </Col>
       <Spacer />

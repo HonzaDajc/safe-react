@@ -1,4 +1,4 @@
-import { Icon, Link, Loader, Text } from '@gnosis.pm/safe-react-components'
+import { Loader, Text } from '@gnosis.pm/safe-react-components'
 import cn from 'classnames'
 import React, { ReactElement, useContext } from 'react'
 import styled from 'styled-components'
@@ -13,7 +13,7 @@ import {
 } from 'src/logic/safe/store/models/types/gateway.d'
 import { TransactionActions } from './hooks/useTransactionActions'
 import { useTransactionDetails } from './hooks/useTransactionDetails'
-import { TxDetailsContainer, Centered, AlignItemsWithMargin } from './styled'
+import { TxDetailsContainer, Centered } from './styled'
 import { TxData } from './TxData'
 import { TxExpandedActions } from './TxExpandedActions'
 import { TxInfo } from './TxInfo'
@@ -51,19 +51,6 @@ const TxDataGroup = ({ txDetails }: { txDetails: ExpandedTxDetails }): ReactElem
         {!isTxExecuted && (
           <>
             <br />
-            <Link
-              href="https://help.gnosis-safe.io/en/articles/4738501-why-do-i-need-to-pay-for-cancelling-a-transaction"
-              target="_blank"
-              rel="noreferrer"
-              title="Why do I need to pay for rejecting a transaction?"
-            >
-              <AlignItemsWithMargin>
-                <Text size="xl" as="span" color="primary">
-                  Why do I need to pay for rejecting a transaction?
-                </Text>
-                <Icon size="sm" type="externalLink" color="primary" />
-              </AlignItemsWithMargin>
-            </Link>
           </>
         )}
       </>
