@@ -1,18 +1,15 @@
-import { Loader, Text, theme, Title } from '@gnosis.pm/safe-react-components'
-import { makeStyles } from '@material-ui/core/styles'
+import { Text, theme, Title } from '@gnosis.pm/safe-react-components'
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 
 import { getModuleData } from './dataFetcher'
-import { styles } from './style'
+import { useStyles } from './style'
 import { ModulesTable } from './ModulesTable'
 
 import Block from 'src/components/layout/Block'
 import { safeModulesSelector, safeNonceSelector } from 'src/logic/safe/store/selectors'
 import { useAnalytics, SAFE_NAVIGATION_EVENT } from 'src/utils/googleAnalytics'
-
-const useStyles = makeStyles(styles)
 
 const InfoText = styled(Text)`
   margin-top: 16px;
@@ -27,16 +24,6 @@ const NoModuleLegend = (): React.ReactElement => (
     No modules enabled
   </InfoText>
 )
-
-const LoadingModules = (): React.ReactElement => {
-  const classes = useStyles()
-
-  return (
-    <Block className={classes.container}>
-      <Loader size="md" />
-    </Block>
-  )
-}
 
 export const Advanced = (): React.ReactElement => {
   const classes = useStyles()
@@ -57,8 +44,8 @@ export const Advanced = (): React.ReactElement => {
           Safe Nonce
         </Title>
         <InfoText size="lg">
-          For security reasons, transactions made with the Safe need to be executed in order. The nonce shows you which
-          transaction was executed most recently. You can find the nonce for a transaction in the transaction details.
+          For security reasons, transactions made with Gnosis Safe need to be executed in order. The nonce shows you
+          which transaction will be executed next. You can find the nonce for a transaction in the transaction details.
         </InfoText>
         <InfoText color="secondaryLight" size="xl">
           Current Nonce: <Bold>{nonce}</Bold>
@@ -83,13 +70,7 @@ export const Advanced = (): React.ReactElement => {
           .
         </InfoText>
 
-        {!moduleData ? (
-          <NoModuleLegend />
-        ) : moduleData?.length === 0 ? (
-          <LoadingModules />
-        ) : (
-          <ModulesTable moduleData={moduleData} />
-        )}
+        {!moduleData || !moduleData.length ? <NoModuleLegend /> : <ModulesTable moduleData={moduleData} />}
       </Block>
     </>
   )

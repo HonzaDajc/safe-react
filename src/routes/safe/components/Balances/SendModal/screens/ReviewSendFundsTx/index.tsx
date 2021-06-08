@@ -3,12 +3,11 @@ import { makeStyles } from '@material-ui/core/styles'
 import Close from '@material-ui/icons/Close'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { ExplorerButton, Button } from '@gnosis.pm/safe-react-components'
+import { EthHashInfo } from '@gnosis.pm/safe-react-components'
 
 import { toTokenUnit } from 'src/logic/tokens/utils/humanReadableValue'
 import { getExplorerInfo, getNetworkInfo } from 'src/config'
-import CopyBtn from 'src/components/CopyBtn'
-import Identicon from 'src/components/Identicon'
+import Divider from 'src/components/Divider'
 import Block from 'src/components/layout/Block'
 import Col from 'src/components/layout/Col'
 import Hairline from 'src/components/layout/Hairline'
@@ -26,14 +25,14 @@ import SafeInfo from 'src/routes/safe/components/Balances/SendModal/SafeInfo'
 import { setImageToPlaceholder } from 'src/routes/safe/components/Balances/utils'
 import { extendedSafeTokensSelector } from 'src/routes/safe/container/selector'
 import { SpendingLimit } from 'src/logic/safe/store/models/safe'
-import { sm } from 'src/theme/variables'
 import { sameString } from 'src/utils/strings'
 import { TokenProps } from 'src/logic/tokens/store/model/token'
 import { RecordOf } from 'immutable'
 import { EstimationStatus, useEstimateTransactionGas } from 'src/logic/hooks/useEstimateTransactionGas'
+import { useEstimationStatus } from 'src/logic/hooks/useEstimationStatus'
+import { ButtonStatus, Modal } from 'src/components/Modal'
 import { TransactionFees } from 'src/components/TransactionsFees'
 
-import ArrowDown from '../assets/arrow-down.svg'
 import { styles } from './style'
 import { EditableTxParameters } from 'src/routes/safe/components/Transactions/helpers/EditableTxParameters'
 import { TxParametersDetail } from 'src/routes/safe/components/Transactions/helpers/TxParametersDetail'
@@ -45,6 +44,7 @@ const { nativeCoin } = getNetworkInfo()
 
 export type ReviewTxProp = {
   recipientAddress: string
+  recipientName?: string
   amount: string
   txRecipient: string
   token: string
@@ -121,10 +121,14 @@ const ReviewSendFundsTx = ({ onClose, onPrev, tx }: ReviewTxProps): React.ReactE
     manualGasLimit,
   })
 
-  const submitTx = async (txParameters: TxParameters) => {
-    const isSpendingLimit = sameString(tx.txType, 'spendingLimit')
+  const [buttonStatus, setButtonStatus] = useEstimationStatus(txEstimationExecutionStatus)
+  const isSpendingLimit = sameString(tx.txType, 'spendingLimit')
+
+  const submitTx = (txParameters: TxParameters) => {
+    setButtonStatus(ButtonStatus.LOADING)
 
     if (!safeAddress) {
+      setButtonStatus(ButtonStatus.READY)
       console.error('There was an error trying to submit the transaction, the safeAddress was not found')
       return
     }
@@ -145,7 +149,10 @@ const ReviewSendFundsTx = ({ onClose, onPrev, tx }: ReviewTxProps): React.ReactE
         )
         .send({ from: tx.tokenSpendingLimit.delegate })
         .on('transactionHash', () => onClose())
-        .catch(console.error)
+        .catch((error) => {
+          setButtonStatus(ButtonStatus.READY)
+          console.error(error)
+        })
     } else {
       dispatch(
         createTransaction({
@@ -209,14 +216,7 @@ const ReviewSendFundsTx = ({ onClose, onPrev, tx }: ReviewTxProps): React.ReactE
           <Block className={classes.container}>
             {/* SafeInfo */}
             <SafeInfo />
-            <Row margin="md">
-              <Col xs={1}>
-                <img alt="Arrow Down" src={ArrowDown} style={{ marginLeft: sm }} />
-              </Col>
-              <Col center="xs" layout="column" xs={11}>
-                <Hairline />
-              </Col>
-            </Row>
+            <Divider withArrow />
 
             {/* Recipient */}
             <Row margin="xs">
@@ -225,22 +225,14 @@ const ReviewSendFundsTx = ({ onClose, onPrev, tx }: ReviewTxProps): React.ReactE
               </Paragraph>
             </Row>
             <Row align="center" margin="md">
-              <Col xs={1}>
-                <Identicon address={tx.recipientAddress} diameter={32} />
-              </Col>
-              <Col layout="column" xs={11}>
-                <Block justify="left">
-                  <Paragraph
-                    className={classes.address}
-                    noMargin
-                    weight="bolder"
-                    data-testid="recipient-address-review-step"
-                  >
-                    {tx.recipientAddress}
-                  </Paragraph>
-                  <CopyBtn content={tx.recipientAddress} />
-                  <ExplorerButton explorerUrl={getExplorerInfo(tx.recipientAddress)} />
-                </Block>
+              <Col xs={12}>
+                <EthHashInfo
+                  hash={tx.recipientAddress}
+                  name={tx.recipientName}
+                  showCopyBtn
+                  showAvatar
+                  explorerUrl={getExplorerInfo(tx.recipientAddress)}
+                />
               </Col>
             </Row>
 
@@ -264,7 +256,7 @@ const ReviewSendFundsTx = ({ onClose, onPrev, tx }: ReviewTxProps): React.ReactE
 
             {/* Tx Parameters */}
             {/* FIXME TxParameters should be updated to be used with spending limits */}
-            {!sameString(tx.txType, 'spendingLimit') && (
+            {!isSpendingLimit && (
               <TxParametersDetail
                 txParameters={txParameters}
                 onEdit={toggleEditMode}
@@ -277,7 +269,7 @@ const ReviewSendFundsTx = ({ onClose, onPrev, tx }: ReviewTxProps): React.ReactE
 
           {/* Disclaimer */}
           {/* FIXME Estimation should be fixed to be used with spending limits */}
-          {!sameString(tx.txType, 'spendingLimit') && txEstimationExecutionStatus !== EstimationStatus.LOADING && (
+          {!isSpendingLimit && txEstimationExecutionStatus !== EstimationStatus.LOADING && (
             <div className={classes.gasCostsContainer}>
               <TransactionFees
                 gasCostFormatted={gasCostFormatted}
@@ -290,22 +282,17 @@ const ReviewSendFundsTx = ({ onClose, onPrev, tx }: ReviewTxProps): React.ReactE
           )}
 
           {/* Footer */}
-          <Row align="center" className={classes.buttonRow}>
-            <Button size="md" color="primary" variant="outlined" onClick={onPrev}>
-              Back
-            </Button>
-            <Button
-              size="md"
-              className={classes.submitButton}
-              color="primary"
-              data-testid="submit-tx-btn"
-              disabled={!data || txEstimationExecutionStatus === EstimationStatus.LOADING}
-              onClick={() => submitTx(txParameters)}
-              variant="contained"
-            >
-              Submit
-            </Button>
-          </Row>
+          <Modal.Footer withoutBorder={!isSpendingLimit && buttonStatus !== ButtonStatus.LOADING}>
+            <Modal.Footer.Buttons
+              cancelButtonProps={{ onClick: onPrev, text: 'Back' }}
+              confirmButtonProps={{
+                onClick: () => submitTx(txParameters),
+                status: buttonStatus,
+                text: txEstimationExecutionStatus === EstimationStatus.LOADING ? 'Estimating' : undefined,
+                testId: 'submit-tx-btn',
+              }}
+            />
+          </Modal.Footer>
         </>
       )}
     </EditableTxParameters>

@@ -10,14 +10,14 @@ import {
   getPreValidatedSignatures,
 } from 'src/logic/safe/safeTxSigner'
 import { getApprovalTransaction, getExecutionTransaction, saveTxToHistory } from 'src/logic/safe/transactions'
-import { tryOffchainSigning } from 'src/logic/safe/transactions/offchainSigner'
+import { tryOffChainSigning } from 'src/logic/safe/transactions/offchainSigner'
 import * as aboutToExecuteTx from 'src/logic/safe/utils/aboutToExecuteTx'
 import { getCurrentSafeVersion } from 'src/logic/safe/utils/safeVersion'
 import { EMPTY_DATA } from 'src/logic/wallets/ethTransactions'
 import { providerSelector } from 'src/logic/wallets/store/selectors'
 import enqueueSnackbar from 'src/logic/notifications/store/actions/enqueueSnackbar'
 import closeSnackbarAction from 'src/logic/notifications/store/actions/closeSnackbar'
-import fetchSafe from 'src/logic/safe/store/actions/fetchSafe'
+import { fetchSafe } from 'src/logic/safe/store/actions/fetchSafe'
 import fetchTransactions from 'src/logic/safe/store/actions/transactions/fetchTransactions'
 import { getLastTx, getNewTxNonce, shouldExecuteTransaction } from 'src/logic/safe/store/actions/utils'
 import { AppReduxState } from 'src/store'
@@ -111,7 +111,7 @@ export const processTransaction = ({
 
   try {
     if (checkIfOffChainSignatureIsPossible(isExecution, smartContractWallet, safeVersion)) {
-      const signature = await tryOffchainSigning(tx.safeTxHash, { ...txArgs, safeAddress }, hardwareWallet)
+      const signature = await tryOffChainSigning(tx.safeTxHash, { ...txArgs, safeAddress }, hardwareWallet, safeVersion)
 
       if (signature) {
         dispatch(closeSnackbarAction({ key: beforeExecutionKey }))

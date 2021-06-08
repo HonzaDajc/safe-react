@@ -1,10 +1,8 @@
 import IconButton from '@material-ui/core/IconButton'
 import Close from '@material-ui/icons/Close'
-import classNames from 'classnames/bind'
 import React, { ReactElement } from 'react'
 import { useSelector } from 'react-redux'
 
-import CopyBtn from 'src/components/CopyBtn'
 import AddressInput from 'src/components/forms/AddressInput'
 import Field from 'src/components/forms/Field'
 import GnoForm from 'src/components/forms/GnoForm'
@@ -16,32 +14,30 @@ import {
   required,
   uniqueAddress,
 } from 'src/components/forms/validator'
-import Identicon from 'src/components/Identicon'
 import Block from 'src/components/layout/Block'
-import Button from 'src/components/layout/Button'
 import Col from 'src/components/layout/Col'
 import Hairline from 'src/components/layout/Hairline'
 import Paragraph from 'src/components/layout/Paragraph'
 import Row from 'src/components/layout/Row'
 import { ScanQRWrapper } from 'src/components/ScanQRModal/ScanQRWrapper'
+import { Modal } from 'src/components/Modal'
 import { safeOwnersAddressesListSelector, safeParamAddressFromStateSelector } from 'src/logic/safe/store/selectors'
 
-import { styles } from './style'
+import { useStyles } from './style'
 import { getExplorerInfo } from 'src/config'
-import { ExplorerButton } from '@gnosis.pm/safe-react-components'
-import { makeStyles } from '@material-ui/core'
+import { EthHashInfo } from '@gnosis.pm/safe-react-components'
 
 export const REPLACE_OWNER_NAME_INPUT_TEST_ID = 'replace-owner-name-input'
 export const REPLACE_OWNER_ADDRESS_INPUT_TEST_ID = 'replace-owner-address-testid'
 export const REPLACE_OWNER_NEXT_BTN_TEST_ID = 'replace-owner-next-btn'
+
+import { OwnerValues } from '../..'
 
 const formMutators = {
   setOwnerAddress: (args, state, utils) => {
     utils.changeValue(state, 'ownerAddress', () => args[0])
   },
 }
-
-const useStyles = makeStyles(styles)
 
 type NewOwnerProps = {
   ownerAddress: string
@@ -53,9 +49,16 @@ type OwnerFormProps = {
   onSubmit: (values: NewOwnerProps) => void
   ownerAddress: string
   ownerName: string
+  initialValues?: OwnerValues
 }
 
-export const OwnerForm = ({ onClose, onSubmit, ownerAddress, ownerName }: OwnerFormProps): ReactElement => {
+export const OwnerForm = ({
+  onClose,
+  onSubmit,
+  ownerAddress,
+  ownerName,
+  initialValues,
+}: OwnerFormProps): ReactElement => {
   const classes = useStyles()
 
   const handleSubmit = (values: NewOwnerProps) => {
@@ -78,7 +81,14 @@ export const OwnerForm = ({ onClose, onSubmit, ownerAddress, ownerName }: OwnerF
         </IconButton>
       </Row>
       <Hairline />
-      <GnoForm formMutators={formMutators} onSubmit={handleSubmit}>
+      <GnoForm
+        formMutators={formMutators}
+        onSubmit={handleSubmit}
+        initialValues={{
+          ownerName: initialValues?.newOwnerName,
+          ownerAddress: initialValues?.newOwnerAddress,
+        }}
+      >
         {(...args) => {
           const mutators = args[3]
 
@@ -106,22 +116,14 @@ export const OwnerForm = ({ onClose, onSubmit, ownerAddress, ownerName }: OwnerF
                   <Paragraph>Current owner</Paragraph>
                 </Row>
                 <Row className={classes.owner}>
-                  <Col align="center" xs={1}>
-                    <Identicon address={ownerAddress} diameter={32} />
-                  </Col>
-                  <Col xs={7}>
-                    <Block className={classNames(classes.name, classes.userName)}>
-                      <Paragraph noMargin size="lg" weight="bolder">
-                        {ownerName}
-                      </Paragraph>
-                      <Block className={classes.user} justify="center">
-                        <Paragraph className={classes.address} color="disabled" noMargin size="md">
-                          {ownerAddress}
-                        </Paragraph>
-                        <CopyBtn content={ownerAddress} />
-                        <ExplorerButton explorerUrl={getExplorerInfo(ownerAddress)} />
-                      </Block>
-                    </Block>
+                  <Col align="center" xs={12}>
+                    <EthHashInfo
+                      hash={ownerAddress}
+                      name={ownerName}
+                      showCopyBtn
+                      showAvatar
+                      explorerUrl={getExplorerInfo(ownerAddress)}
+                    />
                   </Col>
                 </Row>
                 <Row>
@@ -156,21 +158,12 @@ export const OwnerForm = ({ onClose, onSubmit, ownerAddress, ownerName }: OwnerF
                   </Col>
                 </Row>
               </Block>
-              <Hairline />
-              <Row align="center" className={classes.buttonRow}>
-                <Button minWidth={140} onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button
-                  color="primary"
-                  minWidth={140}
-                  testId={REPLACE_OWNER_NEXT_BTN_TEST_ID}
-                  type="submit"
-                  variant="contained"
-                >
-                  Next
-                </Button>
-              </Row>
+              <Modal.Footer>
+                <Modal.Footer.Buttons
+                  cancelButtonProps={{ onClick: onClose }}
+                  confirmButtonProps={{ testId: REPLACE_OWNER_NEXT_BTN_TEST_ID, text: 'Next' }}
+                />
+              </Modal.Footer>
             </>
           )
         }}

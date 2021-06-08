@@ -1,18 +1,8 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react'
+import React, { ReactElement, useState, useRef, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
-import {
-  FixedIcon,
-  Loader,
-  Title,
-  Text,
-  Card,
-  GenericModal,
-  ModalFooterConfirmation,
-  Menu,
-  ButtonLink,
-} from '@gnosis.pm/safe-react-components'
-import { MethodToResponse, RPCPayload } from '@gnosis.pm/safe-apps-sdk'
-import { useHistory, useRouteMatch } from 'react-router-dom'
+import { FixedIcon, Loader, Title, Card } from '@gnosis.pm/safe-react-components'
+import { GetBalanceParams, MethodToResponse, RPCPayload } from '@gnosis.pm/safe-apps-sdk'
+import { useHistory } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { INTERFACE_MESSAGES, Transaction, RequestId, LowercaseNetworks } from '@gnosis.pm/safe-apps-sdk-v1'
 
@@ -22,12 +12,11 @@ import {
   safeNameSelector,
 } from 'src/logic/safe/store/selectors'
 import { grantedSelector } from 'src/routes/safe/container/selector'
-import { getNetworkName, getTxServiceUrl } from 'src/config'
+import { getNetworkId, getNetworkName, getTxServiceUrl } from 'src/config'
 import { SAFELIST_ADDRESS } from 'src/routes/routes'
 import { isSameURL } from 'src/utils/url'
 import { useAnalytics, SAFE_NAVIGATION_EVENT } from 'src/utils/googleAnalytics'
-import { loadFromStorage, saveToStorage } from 'src/utils/storage'
-import { staticAppsList } from 'src/routes/safe/components/Apps/utils'
+import { useAppList } from '../hooks/useAppList'
 import { LoadingContainer } from 'src/components/LoaderContainer/index'
 import { TIMEOUT } from 'src/utils/constants'
 import { web3ReadOnly } from 'src/logic/wallets/getWeb3'
@@ -36,9 +25,10 @@ import { ConfirmTxModal } from '../components/ConfirmTxModal'
 import { useIframeMessageHandler } from '../hooks/useIframeMessageHandler'
 import { useLegalConsent } from '../hooks/useLegalConsent'
 import LegalDisclaimer from './LegalDisclaimer'
-import { APPS_STORAGE_KEY, getAppInfoFromUrl } from '../utils'
-import { SafeApp, StoredSafeApp } from '../types.d'
+import { getAppInfoFromUrl } from '../utils'
+import { SafeApp } from '../types'
 import { useAppCommunicator } from '../communicator'
+import { fetchTokenCurrenciesBalances } from 'src/logic/safe/api/fetchTokenCurrenciesBalances'
 
 const OwnerDisclaimer = styled.div`
   display: flex;
@@ -51,23 +41,22 @@ const OwnerDisclaimer = styled.div`
 const AppWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100% + 59px);
+  margin: 0 -16px;
 `
 
 const StyledCard = styled(Card)`
   flex-grow: 1;
   padding: 0;
+  border-radius: 0;
 `
 
-const StyledIframe = styled.iframe`
+const StyledIframe = styled.iframe<{ isLoading: boolean }>`
   height: 100%;
   width: 100%;
   overflow: auto;
   box-sizing: border-box;
-`
-
-const Breadcrumb = styled.div`
-  height: 51px;
+  display: ${({ isLoading }) => (isLoading ? 'none' : 'block')};
 `
 
 export type TransactionParams = {
@@ -77,7 +66,7 @@ export type TransactionParams = {
 type ConfirmTransactionModalState = {
   isOpen: boolean
   txs: Transaction[]
-  requestId?: RequestId
+  requestId: RequestId
   params?: TransactionParams
 }
 
@@ -86,15 +75,16 @@ type Props = {
 }
 
 const NETWORK_NAME = getNetworkName()
+const NETWORK_ID = getNetworkId()
 
 const INITIAL_CONFIRM_TX_MODAL_STATE: ConfirmTransactionModalState = {
   isOpen: false,
   txs: [],
-  requestId: undefined,
+  requestId: '',
   params: undefined,
 }
 
-const AppFrame = ({ appUrl }: Props): React.ReactElement => {
+const AppFrame = ({ appUrl }: Props): ReactElement => {
   const granted = useSelector(grantedSelector)
   const safeAddress = useSelector(safeParamAddressFromStateSelector)
   const ethBalance = useSelector(safeEthBalanceSelector)
@@ -102,8 +92,7 @@ const AppFrame = ({ appUrl }: Props): React.ReactElement => {
   const { trackEvent } = useAnalytics()
   const history = useHistory()
   const { consentReceived, onConsentReceipt } = useLegalConsent()
-
-  const matchSafeWithAddress = useRouteMatch<{ safeAddress: string }>({ path: `${SAFELIST_ADDRESS}/:safeAddress` })
+  const { staticAppsList } = useAppList()
 
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [confirmTransactionModal, setConfirmTransactionModal] = useState<ConfirmTransactionModalState>(
@@ -111,8 +100,6 @@ const AppFrame = ({ appUrl }: Props): React.ReactElement => {
   )
   const [appIsLoading, setAppIsLoading] = useState<boolean>(true)
   const [safeApp, setSafeApp] = useState<SafeApp | undefined>()
-  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false)
-  const [isAppDeletable, setIsAppDeletable] = useState<boolean | undefined>()
 
   const redirectToBalance = () => history.push(`${SAFELIST_ADDRESS}/${safeAddress}/balances`)
   const timer = useRef<number>()
@@ -181,7 +168,16 @@ const AppFrame = ({ appUrl }: Props): React.ReactElement => {
     communicator?.on('getSafeInfo', () => ({
       safeAddress,
       network: NETWORK_NAME,
+      chainId: NETWORK_ID,
     }))
+
+    communicator?.on('getSafeBalances', async (msg) => {
+      const { currency = 'usd' } = msg.data.params as GetBalanceParams
+
+      const balances = await fetchTokenCurrenciesBalances({ safeAddress, selectedCurrency: currency })
+
+      return balances
+    })
 
     communicator?.on('rpcCall', async (msg) => {
       const params = msg.data.params as RPCPayload
@@ -231,7 +227,7 @@ const AppFrame = ({ appUrl }: Props): React.ReactElement => {
     )
 
     // Safe Apps SDK V2 Handler
-    communicator?.send({ safeTxHash }, confirmTransactionModal.requestId)
+    communicator?.send({ safeTxHash }, confirmTransactionModal.requestId as string)
   }
 
   const onTxReject = () => {
@@ -242,33 +238,19 @@ const AppFrame = ({ appUrl }: Props): React.ReactElement => {
     )
 
     // Safe Apps SDK V2 Handler
-    communicator?.send('Transaction was rejected', confirmTransactionModal.requestId, true)
-  }
-
-  const openRemoveModal = () => setIsRemoveModalOpen(true)
-
-  const closeRemoveModal = () => setIsRemoveModalOpen(false)
-
-  const removeApp = async () => {
-    const persistedAppList = (await loadFromStorage<StoredSafeApp[]>(APPS_STORAGE_KEY)) || []
-    const filteredList = persistedAppList.filter((a) => a.url !== safeApp?.url)
-    saveToStorage(APPS_STORAGE_KEY, filteredList)
-
-    const goToApp = `${matchSafeWithAddress?.url}/apps`
-    history.push(goToApp)
+    communicator?.send('Transaction was rejected', confirmTransactionModal.requestId as string, true)
   }
 
   useEffect(() => {
     const loadApp = async () => {
       const app = await getAppInfoFromUrl(appUrl)
 
-      const existsStaticApp = staticAppsList.some((staticApp) => staticApp.url === app.url)
-      setIsAppDeletable(!existsStaticApp)
       setSafeApp(app)
     }
-
-    loadApp()
-  }, [appUrl])
+    if (staticAppsList.length) {
+      loadApp()
+    }
+  }, [appUrl, staticAppsList])
 
   //track GA
   useEffect(() => {
@@ -304,21 +286,12 @@ const AppFrame = ({ appUrl }: Props): React.ReactElement => {
 
   return (
     <AppWrapper>
-      <Menu>
-        <Breadcrumb />
-        {isAppDeletable && (
-          <ButtonLink color="error" iconType="delete" onClick={openRemoveModal}>
-            Remove app
-          </ButtonLink>
-        )}
-      </Menu>
-
       <StyledCard>
         {appIsLoading && (
           <LoadingContainer style={{ flexDirection: 'column' }}>
             {appTimeout && (
               <Title size="xs">
-                The safe-app is taking longer than usual to load. There might be a problem with the safe-app provider.
+                The safe app is taking longer than usual to load. There might be a problem with the app provider.
               </Title>
             )}
             <Loader size="md" />
@@ -326,6 +299,7 @@ const AppFrame = ({ appUrl }: Props): React.ReactElement => {
         )}
 
         <StyledIframe
+          isLoading={appIsLoading}
           frameBorder="0"
           id={`iframe-${appUrl}`}
           ref={iframeRef}
@@ -334,26 +308,6 @@ const AppFrame = ({ appUrl }: Props): React.ReactElement => {
           onLoad={onIframeLoad}
         />
       </StyledCard>
-
-      {isRemoveModalOpen && (
-        <GenericModal
-          title={
-            <Title size="sm" withoutMargin>
-              Remove app
-            </Title>
-          }
-          body={<Text size="md">This action will remove {safeApp.name} from the interface</Text>}
-          footer={
-            <ModalFooterConfirmation
-              cancelText="Cancel"
-              handleCancel={closeRemoveModal}
-              handleOk={removeApp}
-              okText="Remove"
-            />
-          }
-          onClose={closeRemoveModal}
-        />
-      )}
 
       <ConfirmTxModal
         isOpen={confirmTransactionModal.isOpen}

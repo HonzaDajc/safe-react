@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
+import { EthHashInfo } from '@gnosis.pm/safe-react-components'
 import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
 import TableRow from '@material-ui/core/TableRow'
-import { makeStyles } from '@material-ui/core/styles'
 import cn from 'classnames'
 import { List } from 'immutable'
 
@@ -10,14 +10,14 @@ import RemoveOwnerIcon from '../assets/icons/bin.svg'
 
 import { AddOwnerModal } from './AddOwnerModal'
 import { EditOwnerModal } from './EditOwnerModal'
-import { OwnerAddressTableCell } from './OwnerAddressTableCell'
 import { RemoveOwnerModal } from './RemoveOwnerModal'
 import { ReplaceOwnerModal } from './ReplaceOwnerModal'
 import RenameOwnerIcon from './assets/icons/rename-owner.svg'
 import ReplaceOwnerIcon from './assets/icons/replace-owner.svg'
 import { OWNERS_TABLE_ADDRESS_ID, OWNERS_TABLE_NAME_ID, generateColumns, getOwnerData } from './dataFetcher'
-import { styles } from './style'
+import { useStyles } from './style'
 
+import { getExplorerInfo } from 'src/config'
 import Table from 'src/components/Table'
 import { cellWidth } from 'src/components/Table/TableHead'
 import Block from 'src/components/layout/Block'
@@ -38,8 +38,6 @@ export const REMOVE_OWNER_BTN_TEST_ID = 'remove-owner-btn'
 export const ADD_OWNER_BTN_TEST_ID = 'add-owner-btn'
 export const REPLACE_OWNER_BTN_TEST_ID = 'replace-owner-btn'
 export const OWNERS_ROW_TEST_ID = 'owners-row'
-
-const useStyles = makeStyles(styles)
 
 type Props = {
   addressBook: AddressBookState
@@ -118,7 +116,14 @@ const ManageOwners = ({ addressBook, granted, owners }: Props): React.ReactEleme
                   {autoColumns.map((column: any) => (
                     <TableCell align={column.align} component="td" key={column.id} style={cellWidth(column.width)}>
                       {column.id === OWNERS_TABLE_ADDRESS_ID ? (
-                        <OwnerAddressTableCell address={row[column.id]} showLinks />
+                        <Block justify="left">
+                          <EthHashInfo
+                            hash={row[column.id]}
+                            showCopyBtn
+                            showAvatar
+                            explorerUrl={getExplorerInfo(row[column.id])}
+                          />
+                        </Block>
                       ) : (
                         row[column.id]
                       )}

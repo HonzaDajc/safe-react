@@ -19,7 +19,7 @@ import {
   safeParamAddressFromStateSelector,
 } from 'src/logic/safe/store/selectors'
 import { TransactionParams } from '../components/AppFrame'
-import { SafeApp } from 'src/routes/safe/components/Apps/types.d'
+import { SafeApp } from 'src/routes/safe/components/Apps/types'
 
 type InterfaceMessageProps<T extends InterfaceMessageIds> = {
   messageId: T
@@ -66,7 +66,6 @@ const useIframeMessageHandler = (
       requestId: RequestId,
     ): void => {
       if (!messageId) {
-        console.error('ThirdPartyApp: A message was received without message id.')
         return
       }
 

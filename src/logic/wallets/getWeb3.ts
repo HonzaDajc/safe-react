@@ -9,6 +9,7 @@ import { getRpcServiceUrl } from 'src/config'
 import { isValidCryptoDomainName } from 'src/logic/wallets/ethAddresses'
 import { getAddressFromUnstoppableDomain } from './utils/unstoppableDomains'
 
+// This providers have direct relation with name assigned in bnc-onboard configuration
 export const WALLET_PROVIDER = {
   SAFE: 'SAFE',
   METAMASK: 'METAMASK',
@@ -19,7 +20,8 @@ export const WALLET_PROVIDER = {
   SQUARELINK: 'SQUARELINK',
   WALLETCONNECT: 'WALLETCONNECT',
   OPERA: 'OPERA',
-  WALLETLINK: 'WALLETLINK',
+  // This is the provider for WALLET_LINK configuration on bnc-onboard
+  COINBASE_WALLET: 'COINBASE WALLET',
   AUTHEREUM: 'AUTHEREUM',
   LEDGER: 'LEDGER',
   TREZOR: 'TREZOR',
@@ -62,7 +64,7 @@ const isHardwareWallet = (walletName: string) =>
 const isSmartContractWallet = async (web3Provider: Web3, account: string): Promise<boolean> => {
   const contractCode = await web3Provider.eth.getCode(account)
 
-  return contractCode.replace(EMPTY_DATA, '').replace(/0/g, '') !== ''
+  return !!contractCode && contractCode.replace(EMPTY_DATA, '').replace(/0/g, '') !== ''
 }
 
 export const getProviderInfo = async (web3Instance: Web3, providerName = 'Wallet'): Promise<ProviderProps> => {
@@ -95,18 +97,4 @@ export const getContentFromENS = (name: string): Promise<ContentHash> => web3.et
 
 export const setWeb3 = (provider: Provider): void => {
   web3 = new Web3(provider)
-}
-
-export const getBalanceInEtherOf = async (safeAddress: string): Promise<string> => {
-  if (!web3) {
-    return '0'
-  }
-
-  const funds = await web3.eth.getBalance(safeAddress)
-
-  if (!funds) {
-    return '0'
-  }
-
-  return web3.utils.fromWei(funds, 'ether').toString()
 }

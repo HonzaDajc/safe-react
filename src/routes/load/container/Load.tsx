@@ -1,3 +1,4 @@
+import { List } from 'immutable'
 import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ETHEREUM_NETWORK } from 'src/config/networks/network.d'
@@ -13,7 +14,6 @@ import { SAFELIST_ADDRESS } from 'src/routes/routes'
 import { buildSafe } from 'src/logic/safe/store/actions/fetchSafe'
 import { history } from 'src/store'
 import { SafeOwner, SafeRecordProps } from 'src/logic/safe/store/models/safe'
-import { List } from 'immutable'
 import { checksumAddress } from 'src/utils/checksumAddress'
 import { networkSelector, providerNameSelector, userAccountSelector } from 'src/logic/wallets/store/selectors'
 import { addOrUpdateSafe } from 'src/logic/safe/store/actions/addOrUpdateSafe'
@@ -26,6 +26,9 @@ export const loadSafe = async (
 ): Promise<void> => {
   const safeProps = await buildSafe(safeAddress, safeName)
   safeProps.owners = owners
+  // We are manually adding the safe. We enforce this state in case the safe was previously
+  // accessed by URL
+  safeProps.loadedViaUrl = false
 
   const storedSafes = (await loadStoredSafes()) || {}
 
@@ -66,7 +69,7 @@ const Load = (): React.ReactElement => {
     let safeAddress = values[FIELD_LOAD_ADDRESS]
     // TODO: review this check. It doesn't seems to be necessary at this point
     if (!safeAddress) {
-      console.error('failed to load Safe address', JSON.stringify(values))
+      console.error('failed to add Safe address', JSON.stringify(values))
       return
     }
 

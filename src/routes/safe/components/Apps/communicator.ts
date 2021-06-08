@@ -7,8 +7,10 @@ import {
   ErrorResponse,
   MessageFormatter,
   METHODS,
+  RequestId,
 } from '@gnosis.pm/safe-apps-sdk'
-import { SafeApp } from './types.d'
+import { logError, Errors } from 'src/logic/exceptions/CodedException'
+import { SafeApp } from './types'
 
 type MessageHandler = (
   msg: SDKMessageEvent,
@@ -33,23 +35,22 @@ class AppCommunicator {
   private isValidMessage = (msg: SDKMessageEvent): boolean => {
     // @ts-expect-error .parent doesn't exist on some possible types
     const sentFromIframe = msg.source.parent === window.parent
-    const knownOrigin = this.app.url.includes(msg.origin)
     const knownMethod = Object.values(METHODS).includes(msg.data.method)
 
-    return knownOrigin && sentFromIframe && knownMethod
+    return sentFromIframe && knownMethod
   }
 
   private canHandleMessage = (msg: SDKMessageEvent): boolean => {
     return Boolean(this.handlers.get(msg.data.method))
   }
 
-  send = (data, requestId, error = false): void => {
+  send = (data: unknown, requestId: RequestId, error = false): void => {
     const sdkVersion = getSDKVersion()
     const msg = error
-      ? MessageFormatter.makeErrorResponse(requestId, data, sdkVersion)
+      ? MessageFormatter.makeErrorResponse(requestId, data as string, sdkVersion)
       : MessageFormatter.makeResponse(requestId, data, sdkVersion)
 
-    this.iframeRef.current?.contentWindow?.postMessage(msg, this.app.url)
+    this.iframeRef.current?.contentWindow?.postMessage(msg, '*')
   }
 
   handleIncomingMessage = async (msg: SDKMessageEvent): Promise<void> => {
@@ -67,8 +68,13 @@ class AppCommunicator {
           this.send(response, msg.data.id)
         }
       } catch (err) {
-        console.log({ err })
         this.send(err.message, msg.data.id, true)
+        logError(Errors._901, err.message, {
+          contexts: {
+            safeApp: this.app,
+            request: msg.data,
+          },
+        })
       }
     }
   }

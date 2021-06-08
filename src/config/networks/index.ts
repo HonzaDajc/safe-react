@@ -4,6 +4,8 @@ import rinkeby from './rinkeby'
 import xdai from './xdai'
 import energy_web_chain from './energy_web_chain'
 import volta from './volta'
+import ftmtestnet from './ftmtestnet'
+import fantom from './fantom'
 
 export default {
   local,
@@ -12,4 +14,6 @@ export default {
   xdai,
   energy_web_chain,
   volta,
+  ftmtestnet,
+  fantom,
 }

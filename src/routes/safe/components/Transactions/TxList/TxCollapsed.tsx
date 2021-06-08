@@ -1,6 +1,5 @@
-import { Dot, IconText as IconTextSrc, Text, Tooltip } from '@gnosis.pm/safe-react-components'
+import { Dot, IconText as IconTextSrc, Loader, Text, Tooltip } from '@gnosis.pm/safe-react-components'
 import { ThemeColors } from '@gnosis.pm/safe-react-components/dist/theme'
-import CircularProgress from '@material-ui/core/CircularProgress'
 import React, { ReactElement, useContext, useRef } from 'react'
 import styled from 'styled-components'
 
@@ -24,7 +23,7 @@ import { TokenTransferAmount } from './TokenTransferAmount'
 import { TxsInfiniteScrollContext } from './TxsInfiniteScroll'
 import { TxLocationContext } from './TxLocationProvider'
 import { CalculatedVotes } from './TxQueueCollapsed'
-import { isCancelTxDetails } from './utils'
+import { getTxTo, isCancelTxDetails } from './utils'
 
 const TxInfo = ({ info }: { info: AssetInfo }) => {
   if (isTokenTransferAsset(info)) {
@@ -115,6 +114,7 @@ export const TxCollapsed = ({
 }: TxCollapsedProps): ReactElement => {
   const { txLocation } = useContext(TxLocationContext)
   const { ref, lastItemId } = useContext(TxsInfiniteScrollContext)
+  const toAddress = getTxTo(transaction)
 
   const willBeReplaced = transaction?.txStatus === 'WILL_BE_REPLACED' ? ' will-be-replaced' : ''
   const onChainRejection =
@@ -128,7 +128,12 @@ export const TxCollapsed = ({
 
   const txCollapsedType = (
     <div className={'tx-type' + willBeReplaced + onChainRejection}>
-      <CustomIconText iconUrl={type.icon} text={type.text} />
+      <CustomIconText
+        address={toAddress || '0x'}
+        iconUrl={type.icon}
+        iconUrlFallback={type.fallbackIcon}
+        text={type.text}
+      />
     </div>
   )
 
@@ -171,7 +176,7 @@ export const TxCollapsed = ({
     <div className="tx-status" ref={sameString(lastItemId, transaction.id) ? ref : null}>
       {transaction?.txStatus === 'PENDING' || transaction?.txStatus === 'PENDING_FAILED' ? (
         <CircularProgressPainter color={status.color}>
-          <CircularProgress size={14} color="inherit" />
+          <Loader size="xs" color="pending" />
         </CircularProgressPainter>
       ) : (
         (transaction?.txStatus === 'AWAITING_EXECUTION' || transaction?.txStatus === 'AWAITING_CONFIRMATIONS') && (

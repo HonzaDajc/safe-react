@@ -63,16 +63,31 @@ export const maxValue = (max: number | string) => (value: string): ValidatorRetu
 
 export const ok = (): undefined => undefined
 
-export const mustBeEthereumAddress = memoize(
+export const mustBeHexData = (data: string): ValidatorReturnType => {
+  const isData = getWeb3().utils.isHexStrict(data)
+
+  if (!isData) {
+    return 'Has to be a valid strict hex data (it must start with 0x)'
+  }
+}
+
+export const mustBeAddressHash = memoize(
   (address: string): ValidatorReturnType => {
+    const errorMessage = 'Must be a valid address'
     const startsWith0x = address?.startsWith('0x')
     const isAddress = getWeb3().utils.isAddress(address)
-
-    const errorMessage = `Input must be a valid Ethereum address${
-      isFeatureEnabled(FEATURES.DOMAIN_LOOKUP) ? ', ENS or Unstoppable domain' : ''
-    }`
-
     return startsWith0x && isAddress ? undefined : errorMessage
+  },
+)
+
+export const mustBeEthereumAddress = memoize(
+  (address: string): ValidatorReturnType => {
+    const errorMessage = 'Must be a valid address, ENS or Unstoppable domain'
+    const result = mustBeAddressHash(address)
+    if (result !== undefined && isFeatureEnabled(FEATURES.DOMAIN_LOOKUP)) {
+      return errorMessage
+    }
+    return result
   },
 )
 
@@ -88,6 +103,12 @@ export const mustBeEthereumContractAddress = memoize(
 
 export const minMaxLength = (minLen: number, maxLen: number) => (value: string): ValidatorReturnType =>
   value.length >= +minLen && value.length <= +maxLen ? undefined : `Should be ${minLen} to ${maxLen} symbols`
+
+export const minMaxDecimalsLength = (minLen: number, maxLen: number) => (value: string): ValidatorReturnType => {
+  const decimals = value.split('.')[1] || '0'
+  const minMaxLengthErrMsg = minMaxLength(minLen, maxLen)(decimals)
+  return minMaxLengthErrMsg ? `Should be ${minLen} to ${maxLen} decimals` : undefined
+}
 
 export const ADDRESS_REPEATED_ERROR = 'Address already introduced'
 export const OWNER_ADDRESS_IS_SAFE_ADDRESS_ERROR = 'Cannot use Safe itself as owner.'

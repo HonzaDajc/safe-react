@@ -1,4 +1,5 @@
-import { IconText } from '@gnosis.pm/safe-react-components'
+import { IconText, Loader } from '@gnosis.pm/safe-react-components'
+import { LoadingContainer } from 'src/components/LoaderContainer'
 import Badge from '@material-ui/core/Badge'
 import { makeStyles } from '@material-ui/core/styles'
 import cn from 'classnames'
@@ -15,7 +16,6 @@ import ThresholdSettings from './ThresholdSettings'
 import RemoveSafeIcon from './assets/icons/bin.svg'
 import { styles } from './style'
 
-import Loader from 'src/components/Loader'
 import Block from 'src/components/layout/Block'
 import ButtonLink from 'src/components/layout/ButtonLink'
 import Col from 'src/components/layout/Col'
@@ -26,7 +26,7 @@ import Row from 'src/components/layout/Row'
 import Span from 'src/components/layout/Span'
 import { addressBookSelector } from 'src/logic/addressBook/store/selectors'
 import { grantedSelector } from 'src/routes/safe/container/selector'
-import { safeNeedsUpdateSelector, safeOwnersSelector } from 'src/logic/safe/store/selectors'
+import { safeLoadedViaUrlSelector, safeNeedsUpdateSelector, safeOwnersSelector } from 'src/logic/safe/store/selectors'
 
 export const OWNERS_SETTINGS_TAB_TEST_ID = 'owner-settings-tab'
 
@@ -41,6 +41,7 @@ const Settings: React.FC = () => {
   const classes = useStyles()
   const [state, setState] = useState(INITIAL_STATE)
   const owners = useSelector(safeOwnersSelector)
+  const isSafeLoadedViaUrl = useSelector(safeLoadedViaUrlSelector)
   const needsUpdate = useSelector(safeNeedsUpdateSelector)
   const granted = useSelector(grantedSelector)
   const addressBook = useSelector(addressBookSelector)
@@ -60,14 +61,18 @@ const Settings: React.FC = () => {
   const { menuOptionIndex, showRemoveSafe } = state
 
   return !owners ? (
-    <Loader />
+    <LoadingContainer>
+      <Loader size="md" />
+    </LoadingContainer>
   ) : (
     <>
       <Row className={classes.message}>
-        <ButtonLink className={classes.removeSafeBtn} color="error" onClick={onShow('RemoveSafe')} size="lg">
-          <Span className={classes.links}>Remove Safe</Span>
-          <Img alt="Trash Icon" className={classes.removeSafeIcon} src={RemoveSafeIcon} />
-        </ButtonLink>
+        {!isSafeLoadedViaUrl && (
+          <ButtonLink className={classes.removeSafeBtn} color="error" onClick={onShow('RemoveSafe')} size="lg">
+            <Span className={classes.links}>Remove Safe</Span>
+            <Img alt="Trash Icon" className={classes.removeSafeIcon} src={RemoveSafeIcon} />
+          </ButtonLink>
+        )}
         <RemoveSafeModal isOpen={showRemoveSafe} onClose={onHide('RemoveSafe')} />
       </Row>
       <Block className={classes.root}>
@@ -123,7 +128,7 @@ const Settings: React.FC = () => {
                 iconSize="sm"
                 textSize="xl"
                 iconType="fuelIndicator"
-                text="Spending Limit"
+                text="Spending limit"
                 color={menuOptionIndex === 4 ? 'primary' : 'secondary'}
               />
             </Row>

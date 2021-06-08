@@ -1,17 +1,12 @@
 import IconButton from '@material-ui/core/IconButton'
-import { makeStyles } from '@material-ui/core/styles'
 import Close from '@material-ui/icons/Close'
-import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { List } from 'immutable'
-import { ExplorerButton } from '@gnosis.pm/safe-react-components'
+import { EthHashInfo } from '@gnosis.pm/safe-react-components'
 
 import { getExplorerInfo } from 'src/config'
-import CopyBtn from 'src/components/CopyBtn'
-import Identicon from 'src/components/Identicon'
 import Block from 'src/components/layout/Block'
-import Button from 'src/components/layout/Button'
 import Col from 'src/components/layout/Col'
 import Hairline from 'src/components/layout/Hairline'
 import Paragraph from 'src/components/layout/Paragraph'
@@ -25,17 +20,17 @@ import {
 } from 'src/logic/safe/store/selectors'
 import { getOwnersWithNameFromAddressBook } from 'src/logic/addressBook/utils'
 import { addressBookSelector } from 'src/logic/addressBook/store/selectors'
+import { useEstimationStatus } from 'src/logic/hooks/useEstimationStatus'
 import { TxParametersDetail } from 'src/routes/safe/components/Transactions/helpers/TxParametersDetail'
 import { EstimationStatus, useEstimateTransactionGas } from 'src/logic/hooks/useEstimateTransactionGas'
 import { TxParameters } from 'src/routes/safe/container/hooks/useTransactionParameters'
+import { Modal } from 'src/components/Modal'
 import { TransactionFees } from 'src/components/TransactionsFees'
 import { EditableTxParameters } from 'src/routes/safe/components/Transactions/helpers/EditableTxParameters'
 
-import { styles } from './style'
+import { useStyles } from './style'
 
 export const REPLACE_OWNER_SUBMIT_BTN_TEST_ID = 'replace-owner-submit-btn'
-
-const useStyles = makeStyles(styles)
 
 type ReplaceOwnerProps = {
   onClose: () => void
@@ -85,6 +80,8 @@ export const ReviewReplaceOwnerModal = ({
     manualGasPrice,
     manualGasLimit,
   })
+
+  const [buttonStatus] = useEstimationStatus(txEstimationExecutionStatus)
 
   useEffect(() => {
     let isCurrent = true
@@ -184,22 +181,14 @@ export const ReviewReplaceOwnerModal = ({
                     owner.address !== ownerAddress && (
                       <React.Fragment key={owner.address}>
                         <Row className={classes.owner}>
-                          <Col align="center" xs={1}>
-                            <Identicon address={owner.address} diameter={32} />
-                          </Col>
-                          <Col xs={11}>
-                            <Block className={classNames(classes.name, classes.userName)}>
-                              <Paragraph noMargin size="lg" weight="bolder">
-                                {owner.name}
-                              </Paragraph>
-                              <Block className={classes.user} justify="center">
-                                <Paragraph className={classes.address} color="disabled" noMargin size="md">
-                                  {owner.address}
-                                </Paragraph>
-                                <CopyBtn content={owner.address} />
-                                <ExplorerButton explorerUrl={getExplorerInfo(owner.address)} />
-                              </Block>
-                            </Block>
+                          <Col align="center" xs={12}>
+                            <EthHashInfo
+                              hash={owner.address}
+                              name={owner.name}
+                              showCopyBtn
+                              showAvatar
+                              explorerUrl={getExplorerInfo(owner.address)}
+                            />
                           </Col>
                         </Row>
                         <Hairline />
@@ -213,22 +202,14 @@ export const ReviewReplaceOwnerModal = ({
                 </Row>
                 <Hairline />
                 <Row className={classes.selectedOwnerRemoved}>
-                  <Col align="center" xs={1}>
-                    <Identicon address={ownerAddress} diameter={32} />
-                  </Col>
-                  <Col xs={11}>
-                    <Block className={classNames(classes.name, classes.userName)}>
-                      <Paragraph noMargin size="lg" weight="bolder">
-                        {ownerName}
-                      </Paragraph>
-                      <Block className={classes.user} justify="center">
-                        <Paragraph className={classes.address} color="disabled" noMargin size="md">
-                          {ownerAddress}
-                        </Paragraph>
-                        <CopyBtn content={ownerAddress} />
-                        <ExplorerButton explorerUrl={getExplorerInfo(ownerAddress)} />
-                      </Block>
-                    </Block>
+                  <Col align="center" xs={12}>
+                    <EthHashInfo
+                      hash={ownerAddress}
+                      name={ownerName}
+                      showCopyBtn
+                      showAvatar
+                      explorerUrl={getExplorerInfo(ownerAddress)}
+                    />
                   </Col>
                 </Row>
                 <Row align="center" className={classes.info}>
@@ -238,22 +219,14 @@ export const ReviewReplaceOwnerModal = ({
                 </Row>
                 <Hairline />
                 <Row className={classes.selectedOwnerAdded}>
-                  <Col align="center" xs={1}>
-                    <Identicon address={values.newOwnerAddress} diameter={32} />
-                  </Col>
-                  <Col xs={11}>
-                    <Block className={classNames(classes.name, classes.userName)}>
-                      <Paragraph noMargin size="lg" weight="bolder">
-                        {values.newOwnerName}
-                      </Paragraph>
-                      <Block className={classes.user} justify="center">
-                        <Paragraph className={classes.address} color="disabled" noMargin size="md">
-                          {values.newOwnerAddress}
-                        </Paragraph>
-                        <CopyBtn content={values.newOwnerAddress} />
-                        <ExplorerButton explorerUrl={getExplorerInfo(values.newOwnerAddress)} />
-                      </Block>
-                    </Block>
+                  <Col align="center" xs={12}>
+                    <EthHashInfo
+                      hash={values.newOwnerAddress}
+                      name={values.newOwnerName}
+                      showCopyBtn
+                      showAvatar
+                      explorerUrl={getExplorerInfo(values.newOwnerAddress)}
+                    />
                   </Col>
                 </Row>
                 <Hairline />
@@ -281,23 +254,18 @@ export const ReviewReplaceOwnerModal = ({
               txEstimationExecutionStatus={txEstimationExecutionStatus}
             />
           </Block>
-          <Row align="center" className={classes.buttonRow}>
-            <Button minHeight={42} minWidth={140} onClick={onClickBack}>
-              Back
-            </Button>
-            <Button
-              color="primary"
-              minHeight={42}
-              minWidth={140}
-              onClick={() => onSubmit(txParameters)}
-              testId={REPLACE_OWNER_SUBMIT_BTN_TEST_ID}
-              type="submit"
-              variant="contained"
-              disabled={txEstimationExecutionStatus === EstimationStatus.LOADING}
-            >
-              Submit
-            </Button>
-          </Row>
+          <Modal.Footer withoutBorder>
+            <Modal.Footer.Buttons
+              cancelButtonProps={{ onClick: onClickBack, text: 'Back' }}
+              confirmButtonProps={{
+                onClick: () => onSubmit(txParameters),
+                status: buttonStatus,
+                text: txEstimationExecutionStatus === EstimationStatus.LOADING ? 'Estimating' : undefined,
+                type: 'submit',
+                testId: REPLACE_OWNER_SUBMIT_BTN_TEST_ID,
+              }}
+            />
+          </Modal.Footer>
         </>
       )}
     </EditableTxParameters>
