@@ -1,5 +1,6 @@
 import InputAdornment from '@material-ui/core/InputAdornment'
 import MenuItem from '@material-ui/core/MenuItem'
+import { Icon } from '@gnosis.pm/safe-react-components'
 import { makeStyles } from '@material-ui/core/styles'
 import CheckCircle from '@material-ui/icons/CheckCircle'
 import * as React from 'react'
