@@ -48,6 +48,8 @@ export enum ETHEREUM_NETWORK {
   LOCAL = 4447,
   VOLTA = 73799,
   POLYGON = 137,
+  FTMTESTNET = 4002,
+  FANTOM = 250,
 }
 
 export type NetworkSettings = {

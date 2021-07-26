@@ -10,7 +10,6 @@ import { openCookieBanner } from 'src/logic/cookies/store/actions/openCookieBann
 import { cookieBannerOpen } from 'src/logic/cookies/store/selectors'
 import { loadFromCookie, saveCookie } from 'src/logic/cookies/utils'
 import { mainFontFamily, md, primary, screenSm } from 'src/theme/variables'
-import { loadGoogleAnalytics } from 'src/utils/googleAnalytics'
 import { closeIntercom, isIntercomLoaded } from 'src/utils/intercom'
 import AlertRedIcon from './assets/alert-red.svg'
 import { useSafeAppUrl } from 'src/logic/hooks/useSafeAppUrl'
@@ -139,10 +138,6 @@ const CookiesBanner = (): ReactElement => {
         }
         setLocalAnalytics(acceptedAnalytics)
         setLocalNecessary(acceptedNecessary)
-
-        if (acceptedAnalytics && !isDesktop) {
-          loadGoogleAnalytics()
-        }
       }
     }
     fetchCookiesFromStorage()

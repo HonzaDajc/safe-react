@@ -16,7 +16,7 @@ export const SQUARELINK_ID = {
 }
  */
 export const INFURA_TOKEN = process.env.REACT_APP_INFURA_TOKEN || ''
-export const LATEST_SAFE_VERSION = process.env.REACT_APP_LATEST_SAFE_VERSION || '1.1.1'
+export const LATEST_SAFE_VERSION = process.env.REACT_APP_LATEST_SAFE_VERSION || '1.2.0'
 export const LOADED_SAFE_KEY = 'Gnosis Safe'
 export const APP_VERSION = process.env.REACT_APP_APP_VERSION || 'not-defined'
 export const OPENSEA_API_KEY = process.env.REACT_APP_OPENSEA_API_KEY || ''
@@ -29,8 +29,11 @@ export const CONFIG_SERVICE_URL =
     ? 'https://safe-config.gnosis.io/api/v1'
     : 'https://safe-config.staging.gnosisdev.com/api/v1'
 export const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
-export const SPENDING_LIMIT_MODULE_ADDRESS =
-  process.env.REACT_APP_SPENDING_LIMIT_MODULE_ADDRESS || '0xCFbFaC74C26F8647cBDb8c5caf80BB5b32E43134'
+export const SPENDING_LIMIT_MODULE_ADDRESS = process.env.REACT_APP_SPENDING_LIMIT_MODULE_ADDRESS || ''
 export const KNOWN_MODULES = {
   [SPENDING_LIMIT_MODULE_ADDRESS]: 'Spending limit',
 }
+export const REACT_APP_MULTI_SEND_ADDRESS = process.env.REACT_APP_MULTI_SEND_ADDRESS || ''
+export const REACT_APP_SAFE_MASTER_COPY_ADDRESS = process.env.REACT_APP_SAFE_MASTER_COPY_ADDRESS || ''
+export const REACT_APP_SAFE_PROXY_FACTORY_ADDRESS = process.env.REACT_APP_SAFE_PROXY_FACTORY_ADDRESS || ''
+export const REACT_APP_DEFAULT_FALLBACK_HANDLER_ADDRESS = process.env.REACT_APP_DEFAULT_FALLBACK_HANDLER_ADDRESS || ''

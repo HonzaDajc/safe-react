@@ -38,6 +38,8 @@ const useStyles = makeStyles({
   },
 } as any)
 
+const appVersion = process.env.REACT_APP_APP_VERSION ? `v${process.env.REACT_APP_APP_VERSION} ` : 'Versions'
+
 const Footer = (): React.ReactElement => {
   const date = new Date()
   const classes = useStyles()
@@ -53,6 +55,8 @@ const Footer = (): React.ReactElement => {
       <Link className={cn(classes.item, classes.link)} target="_blank" to="https://fantom.foundation/privacy-policy/">
         Privacy Policy
       </Link>
+      <span className={classes.sep}>|</span>
+      <span className={classes.item}>{appVersion}</span>
     </footer>
   )
 }

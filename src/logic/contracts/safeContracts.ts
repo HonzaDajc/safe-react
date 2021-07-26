@@ -1,15 +1,11 @@
 import semverSatisfies from 'semver/functions/satisfies'
-import {
-  getSafeSingletonDeployment,
-  getSafeL2SingletonDeployment,
-  getProxyFactoryDeployment,
-  getFallbackHandlerDeployment,
-  getMultiSendCallOnlyDeployment
-} from '@gnosis.pm/safe-deployments'
 import Web3 from 'web3'
 import { AbiItem } from 'web3-utils'
+import GnosisSafeSol from '@gnosis.pm/safe-contracts/build/contracts/GnosisSafe.json'
+import ProxyFactorySol from '@gnosis.pm/safe-contracts/build/contracts/GnosisSafeProxyFactory.json'
+import DefaultCallbackHandlerSol from '@gnosis.pm/safe-contracts/build/contracts/DefaultCallbackHandler.json'
+import MultiSendSol from '@gnosis.pm/safe-contracts/build/contracts/MultiSend.json'
 
-import { LATEST_SAFE_VERSION } from 'src/utils/constants'
 import { ETHEREUM_NETWORK } from 'src/config/networks/network.d'
 import { ZERO_ADDRESS } from 'src/logic/wallets/ethAddresses'
 import { calculateGasOf, EMPTY_DATA } from 'src/logic/wallets/ethTransactions'
@@ -19,28 +15,23 @@ import { GnosisSafeProxyFactory } from 'src/types/contracts/GnosisSafeProxyFacto
 import { FallbackManager } from 'src/types/contracts/FallbackManager.d'
 import { MultiSend } from 'src/types/contracts/MultiSend.d'
 import { getSafeInfo, SafeInfo } from 'src/logic/safe/utils/safeInformation'
+import {
+  REACT_APP_SAFE_MASTER_COPY_ADDRESS,
+  REACT_APP_MULTI_SEND_ADDRESS,
+  REACT_APP_DEFAULT_FALLBACK_HANDLER_ADDRESS,
+  REACT_APP_SAFE_PROXY_FACTORY_ADDRESS,
+} from 'src/utils/constants'
 
 export const SENTINEL_ADDRESS = '0x0000000000000000000000000000000000000001'
+export const DEFAULT_FALLBACK_HANDLER_ADDRESS = REACT_APP_DEFAULT_FALLBACK_HANDLER_ADDRESS
+export const MULTI_SEND_ADDRESS = REACT_APP_MULTI_SEND_ADDRESS
+export const SAFE_MASTER_COPY_ADDRESS = REACT_APP_SAFE_MASTER_COPY_ADDRESS
+export const SAFE_PROXY_FACTORY_ADDRESS = REACT_APP_SAFE_PROXY_FACTORY_ADDRESS
 
 let proxyFactoryMaster: GnosisSafeProxyFactory
 let safeMaster: GnosisSafe
 let fallbackHandler: FallbackManager
 let multiSend: MultiSend
-
-const getSafeContractDeployment = ({ networkId, safeVersion }: { networkId?: ETHEREUM_NETWORK, safeVersion: string }) => {
-  // If version is 1.3.0 we can use instance compatible with L2 for all networks
-  const useL2ContractVersion = semverSatisfies(safeVersion, '>=1.3.0')
-  const getDeployment = useL2ContractVersion ? getSafeL2SingletonDeployment : getSafeSingletonDeployment
-  return (
-    getDeployment({
-      version: safeVersion,
-      network: networkId?.toString(),
-    }) ||
-    getDeployment({
-      version: safeVersion,
-    })
-  )
-}
 
 /**
  * Creates a Contract instance of the GnosisSafe contract
@@ -48,11 +39,8 @@ const getSafeContractDeployment = ({ networkId, safeVersion }: { networkId?: ETH
  * @param {ETHEREUM_NETWORK} networkId
  */
 const getGnosisSafeContractInstance = (web3: Web3, networkId: ETHEREUM_NETWORK): GnosisSafe => {
-  const safeSingletonDeployment = getSafeContractDeployment({ networkId, safeVersion: LATEST_SAFE_VERSION })
-
-  const contractAddress =
-    safeSingletonDeployment?.networkAddresses[networkId] ?? safeSingletonDeployment?.defaultAddress
-  return (new web3.eth.Contract(safeSingletonDeployment?.abi as AbiItem[], contractAddress) as unknown) as GnosisSafe
+  const contractAddress = SAFE_MASTER_COPY_ADDRESS
+  return new web3.eth.Contract(GnosisSafeSol?.abi as AbiItem[], contractAddress) as unknown as GnosisSafe
 }
 
 /**
@@ -61,20 +49,8 @@ const getGnosisSafeContractInstance = (web3: Web3, networkId: ETHEREUM_NETWORK):
  * @param {ETHEREUM_NETWORK} networkId
  */
 const getProxyFactoryContractInstance = (web3: Web3, networkId: ETHEREUM_NETWORK): GnosisSafeProxyFactory => {
-  const proxyFactoryDeployment =
-    getProxyFactoryDeployment({
-      version: LATEST_SAFE_VERSION,
-      network: networkId.toString(),
-    }) ||
-    getProxyFactoryDeployment({
-      version: LATEST_SAFE_VERSION,
-    })
-
-  const contractAddress = proxyFactoryDeployment?.networkAddresses[networkId] ?? proxyFactoryDeployment?.defaultAddress
-  return (new web3.eth.Contract(
-    proxyFactoryDeployment?.abi as AbiItem[],
-    contractAddress,
-  ) as unknown) as GnosisSafeProxyFactory
+  const contractAddress = SAFE_PROXY_FACTORY_ADDRESS
+  return new web3.eth.Contract(ProxyFactorySol?.abi as AbiItem[], contractAddress) as unknown as GnosisSafeProxyFactory
 }
 
 /**
@@ -83,21 +59,11 @@ const getProxyFactoryContractInstance = (web3: Web3, networkId: ETHEREUM_NETWORK
  * @param {ETHEREUM_NETWORK} networkId
  */
 const getFallbackHandlerContractInstance = (web3: Web3, networkId: ETHEREUM_NETWORK): FallbackManager => {
-  const fallbackHandlerDeployment =
-    getFallbackHandlerDeployment({
-      version: LATEST_SAFE_VERSION,
-      network: networkId.toString(),
-    }) ||
-    getFallbackHandlerDeployment({
-      version: LATEST_SAFE_VERSION,
-    })
-
-  const contractAddress =
-    fallbackHandlerDeployment?.networkAddresses[networkId] ?? fallbackHandlerDeployment?.defaultAddress
-  return (new web3.eth.Contract(
-    fallbackHandlerDeployment?.abi as AbiItem[],
+  const contractAddress = DEFAULT_FALLBACK_HANDLER_ADDRESS
+  return new web3.eth.Contract(
+    DefaultCallbackHandlerSol?.abi as AbiItem[],
     contractAddress,
-  ) as unknown) as FallbackManager
+  ) as unknown as FallbackManager
 }
 
 /**
@@ -106,13 +72,8 @@ const getFallbackHandlerContractInstance = (web3: Web3, networkId: ETHEREUM_NETW
  * @param {ETHEREUM_NETWORK} networkId
  */
 const getMultiSendContractInstance = (web3: Web3, networkId: ETHEREUM_NETWORK): MultiSend => {
-  const multiSendDeployment =
-    getMultiSendCallOnlyDeployment({
-      network: networkId.toString(),
-    }) || getMultiSendCallOnlyDeployment()
-
-  const contractAddress = multiSendDeployment?.networkAddresses[networkId] ?? multiSendDeployment?.defaultAddress
-  return (new web3.eth.Contract(multiSendDeployment?.abi as AbiItem[], contractAddress) as unknown) as MultiSend
+  const contractAddress = MULTI_SEND_ADDRESS
+  return new web3.eth.Contract(MultiSendSol?.abi as AbiItem[], contractAddress) as unknown as MultiSend
 }
 
 export const getMasterCopyAddressFromProxyAddress = async (proxyAddress: string): Promise<string | undefined> => {
@@ -203,8 +164,6 @@ export const estimateGasForDeployingSafe = async (
 }
 
 export const getGnosisSafeInstanceAt = (safeAddress: string, safeVersion: string): GnosisSafe => {
-  const safeSingletonDeployment = getSafeContractDeployment({ safeVersion })
-
   const web3 = getWeb3()
-  return (new web3.eth.Contract(safeSingletonDeployment?.abi as AbiItem[], safeAddress) as unknown) as GnosisSafe
+  return new web3.eth.Contract(GnosisSafeSol?.abi as AbiItem[], safeAddress) as unknown as GnosisSafe
 }

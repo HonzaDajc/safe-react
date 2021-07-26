@@ -1,16 +1,10 @@
 import abiDecoder from 'abi-decoder'
-import { getProxyFactoryDeployment } from '@gnosis.pm/safe-deployments'
+import ProxyFactory from '@gnosis.pm/safe-contracts/build/contracts/GnosisSafeProxyFactory.json'
 import { Log } from 'web3-core'
 import { checksumAddress } from 'src/utils/checksumAddress'
 
-import { LATEST_SAFE_VERSION } from 'src/utils/constants'
-
 // Init abiDecoder with ProxyCreation ABI
-abiDecoder.addABI(
-  getProxyFactoryDeployment({
-    version: LATEST_SAFE_VERSION,
-  })?.abi,
-)
+abiDecoder.addABI(ProxyFactory?.abi)
 
 export const getNewSafeAddressFromLogs = (logs: Log[]): string => {
   // We find the ProxyCreation event in the logs
