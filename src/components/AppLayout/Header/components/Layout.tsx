@@ -12,7 +12,7 @@ import Img from 'src/components/layout/Img'
 import Row from 'src/components/layout/Row'
 import { headerHeight, md, screenSm, sm } from 'src/theme/variables'
 import { useStateHandler } from 'src/logic/hooks/useStateHandler'
-import SafeLogo from '../assets/gnosis-safe-multisig-logo.svg'
+import SafeLogo from '../assets/fantom-safe-logo.svg'
 import { ROOT_ROUTE } from 'src/routes/routes'
 import WalletSwitch from 'src/components/WalletSwitch'
 import Divider from 'src/components/layout/Divider'
@@ -40,7 +40,7 @@ const styles = () => ({
     zIndex: 1301,
   },
   logo: {
-    flexBasis: '140px',
+    flexBasis: '340px',
     flexShrink: '0',
     flexGrow: '0',
     maxWidth: '55px',
