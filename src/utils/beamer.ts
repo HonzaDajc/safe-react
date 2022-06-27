@@ -21,7 +21,7 @@ let scriptRef: HTMLScriptElement | null = null
 
 export const loadBeamer = async (): Promise<void> => {
   if (!BEAMER_ID) {
-    console.warn('[Beamer] - In order to use Beamer you need to add an appID')
+    //console.warn('[Beamer] - In order to use Beamer you need to add an appID')
     return
   }
 
