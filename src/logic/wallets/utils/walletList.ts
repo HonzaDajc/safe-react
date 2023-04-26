@@ -1,6 +1,6 @@
 import { WalletInitOptions, WalletModule, WalletSelectModuleOptions } from 'bnc-onboard/dist/src/interfaces'
 
-import { getDisabledWallets, getRpcServiceUrl, getChainById } from 'src/config'
+import { getDisabledWallets, getRpcServiceUrl } from 'src/config'
 import { ChainId, CHAIN_ID, WALLETS } from 'src/config/chain.d'
 import getPairingModule from 'src/logic/wallets/pairing/module'
 import { isPairingSupported } from 'src/logic/wallets/pairing/utils'
@@ -13,11 +13,7 @@ type Wallet = (WalletInitOptions | WalletModule) & {
   walletName: WALLETS
 }
 
-const wallets = (chainId: ChainId): Wallet[] => {
-  // Ensure RPC matches chainId drilled from Onboard init
-  const { rpcUri } = getChainById(chainId)
-  const rpcUrl = getRpcServiceUrl(rpcUri)
-
+const wallets = (): Wallet[] => {
   return [
     {
       walletName: WALLETS.METAMASK,
@@ -36,13 +32,6 @@ const wallets = (chainId: ChainId): Wallet[] => {
       preferred: true,
       desktop: false,
     },
-    {
-      walletName: WALLETS.LEDGER,
-      desktop: false,
-      preferred: true,
-      rpcUrl,
-      LedgerTransport: (window as any).TransportNodeHid,
-    },
   ]
 }
 
@@ -54,7 +43,7 @@ export const isSupportedWallet = (name: WALLETS | string): boolean => {
 }
 
 export const getSupportedWallets = (chainId: ChainId): WalletSelectModuleOptions['wallets'] => {
-  const supportedWallets: WalletSelectModuleOptions['wallets'] = wallets(chainId)
+  const supportedWallets: WalletSelectModuleOptions['wallets'] = wallets()
     .filter(({ walletName, desktop }) => {
       if (!isSupportedWallet(walletName)) {
         return false
