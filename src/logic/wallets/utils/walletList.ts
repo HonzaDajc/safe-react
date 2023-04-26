@@ -1,18 +1,49 @@
 import { WalletInitOptions, WalletModule, WalletSelectModuleOptions } from 'bnc-onboard/dist/src/interfaces'
 
-import { getDisabledWallets } from 'src/config'
+import { getDisabledWallets, getRpcServiceUrl, getChainById } from 'src/config'
 import { ChainId, CHAIN_ID, WALLETS } from 'src/config/chain.d'
 import getPairingModule from 'src/logic/wallets/pairing/module'
 import { isPairingSupported } from 'src/logic/wallets/pairing/utils'
 import getE2EWalletModule from '../e2e-wallet/module'
+import { WC_BRIDGE } from 'src/utils/constants'
+import { getChains } from 'src/config/cache/chains'
 
 type Wallet = (WalletInitOptions | WalletModule) & {
   desktop: boolean // Whether wallet supports desktop app
   walletName: WALLETS
 }
 
-const wallets = (): Wallet[] => {
-  return [{ walletName: WALLETS.METAMASK, preferred: true, desktop: false }]
+const wallets = (chainId: ChainId): Wallet[] => {
+  // Ensure RPC matches chainId drilled from Onboard init
+  const { rpcUri } = getChainById(chainId)
+  const rpcUrl = getRpcServiceUrl(rpcUri)
+
+  return [
+    {
+      walletName: WALLETS.METAMASK,
+      preferred: true,
+      desktop: false,
+    },
+    {
+      walletName: WALLETS.WALLET_CONNECT,
+      rpc: getChains().reduce((map, { chainId, rpcUri }) => {
+        return {
+          ...map,
+          [chainId]: getRpcServiceUrl(rpcUri),
+        }
+      }, {}),
+      bridge: WC_BRIDGE,
+      preferred: true,
+      desktop: false,
+    },
+    {
+      walletName: WALLETS.LEDGER,
+      desktop: false,
+      preferred: true,
+      rpcUrl,
+      LedgerTransport: (window as any).TransportNodeHid,
+    },
+  ]
 }
 
 export const isSupportedWallet = (name: WALLETS | string): boolean => {
@@ -23,7 +54,7 @@ export const isSupportedWallet = (name: WALLETS | string): boolean => {
 }
 
 export const getSupportedWallets = (chainId: ChainId): WalletSelectModuleOptions['wallets'] => {
-  const supportedWallets: WalletSelectModuleOptions['wallets'] = wallets()
+  const supportedWallets: WalletSelectModuleOptions['wallets'] = wallets(chainId)
     .filter(({ walletName, desktop }) => {
       if (!isSupportedWallet(walletName)) {
         return false
